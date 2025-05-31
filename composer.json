@@ -1,0 +1,12 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Partials\\": "partials/",
+            "Partials\\Helpers\\": "partials/_helpers",
+            "Partials\\Senders\\": "partials/_senders"
+        }
+    },
+    "require": {
+        "cboden/ratchet": "^0.4.4"
+    }
+}
