@@ -7,39 +7,40 @@ trait MessageJudge
     /**
      * Handle message from judge client.
      * @param int $resource_id
+     * @param string $competition
      * @param int $judge_id
      * @param string $action
      * @param array $payload
      * @return void
      */
-    public function messageJudge(int $resource_id, int $judge_id, string $action, array $payload): void
+    public function messageJudge(int $resource_id, string $competition, int $judge_id, string $action, array $payload): void
     {
         // judge active team and column
         if ($action === '__active_team_column__') {
-            $this->setJudgeActiveTeam($judge_id, $payload['team_id'] ?? 0);
-            $this->setJudgeActiveColumn($judge_id, $payload['column'] ?? 0);
+            $this->setJudgeActiveTeam($competition, $judge_id, $payload['team_id'] ?? 0);
+            $this->setJudgeActiveColumn($competition, $judge_id, $payload['column'] ?? 0);
 
-            $this->sendDashboardJudgeActiveTeamColumns();
+            $this->sendDashboardJudgeActiveTeamColumns($competition);
         }
 
         // judge active event
         else if ($action === '__active_event__') {
-            $this->setJudgeActiveEvent($judge_id, $payload['event_id'] ?? 0);
+            $this->setJudgeActiveEvent($competition, $judge_id, $payload['event_id'] ?? 0);
 
-            $this->sendDashboardJudgeActiveEvents();
-            $this->sendDashboardJudgeActiveTeamColumns();
+            $this->sendDashboardJudgeActiveEvents($competition);
+            $this->sendDashboardJudgeActiveTeamColumns($competition);
         }
 
         // judge help request
         else if ($action === '__call_for_help__') {
-            $this->setJudgeHelpRequest($judge_id, $payload['status'] ?? false);
+            $this->setJudgeHelpRequest($competition, $judge_id, $payload['status'] ?? false);
 
-            $this->sendDashboardJudgesRequestingHelp();
+            $this->sendDashboardJudgesRequestingHelp($competition);
         }
 
         // judge sign out
         else if ($action === '__sign_out__') {
-            $this->closeJudge($resource_id, $judge_id);
+            $this->closeJudge($resource_id, $competition, $judge_id);
         }
     }
 }
