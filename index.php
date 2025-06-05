@@ -43,49 +43,88 @@ class TabulationServer implements MessageComponentInterface
     use SenderJudge;
     use SenderDashboard;
 
+    /** competitions */
+    protected array $competitions = []; /* [
+        'competition_1',
+        'competition_2',
+        ...the rest of competitions
+    ] */
+
     /** clients */
-    protected SplObjectStorage $judge_clients;
-    protected SplObjectStorage $dashboard_clients;
+    protected array $judge_clients = []; /* [
+        'competition_1' => [
+            SplObjectStorage,
+            SplObjectStorage
+            ...
+        ]
+        ...
+    ] */
+    protected array $dashboard_clients = []; /* [
+        'competition_1' => [
+            SplObjectStorage,
+            SplObjectStorage
+            ...
+        ]
+        ...
+    ] */
 
     /** judge clients */
     protected array $judges = []; /* [
-        'judge_1' => [resource_id_1, resource_id_2, ...],
-        'judge_2' => [resource_id_1, resource_id_2, ...],
-        ...the rest of judge clients
+        'competition_1' => [
+            'judge_1' => [resource_id_1, resource_id_2, ...],
+            'judge_2' => [resource_id_1, resource_id_2, ...],
+            ...the rest of judge clients
+        ]
+        ...
     ] */
 
     /** dashboard clients */
     protected array $dashboards = []; /* [
-        'dash_1' => [resource_id_1, resource_id_2, ...],
-        'dash_2' => [resource_id_1, resource_id_2, ...],
-        ...the rest of dashboard clients
+        'competition_1' => [
+            'dash_1' => [resource_id_1, resource_id_2, ...],
+            'dash_2' => [resource_id_1, resource_id_2, ...],
+            ...the rest of dashboard clients
+        ]
+        ...
     ] */
 
     /** judge active event */
     protected array $judge_active_event = []; /* [
-        'judge_1' => 'event_1',
-        'judge_2' => 'event_1',
+        'competition_1' => [
+            'judge_1' => 'event_1',
+            'judge_2' => 'event_1',
+            ...
+        ]
         ...
     ] */
 
     /** judge active team */
     protected array $judge_active_team = []; /* [
-        'judge_1' => 'team_1',
-        'judge_2' => 'team_1',
+        'competition_1' => [
+            'judge_1' => 'team_1',
+            'judge_2' => 'team_1',
+            ...
+        ]
         ...
     ] */
 
     /** judge active column */
     protected array $judge_active_column = []; /* [
-        'judge_1' => 0,
-        'judge_2' => 1,
+        'competition_1' => [
+            'judge_1' => 0,
+            'judge_2' => 1,
+            ...
+        ]
         ...
     ] */
 
     /** judges requesting for help */
     protected array $judges_requesting_help = []; /* [
-        'judge_1',
-        'judge_2'
+        'competition_1' => [
+            'judge_1',
+            'judge_2'
+            ...
+        ]
         ...
     ] */
 
@@ -95,8 +134,6 @@ class TabulationServer implements MessageComponentInterface
      */
     public function __construct()
     {
-        $this->judge_clients     = new SplObjectStorage;
-        $this->dashboard_clients = new SplObjectStorage;
         echo ">> [START]\n";
     }
 
@@ -116,17 +153,26 @@ class TabulationServer implements MessageComponentInterface
         parse_str($query, $params);
 
         // get entity and id
-        $entity = $params['entity'] ?? '';
-        $id     = $params['id']     ?? 0;
+        $competition = $params['competition'] ?? '';
+        $entity      = $params['entity']      ?? '';
+        $id          = $params['id']          ?? 0;
 
         // route open
-        if ($entity === self::ENTITY_JUDGE) {
-            $this->judge_clients->attach($conn);
-            $this->openJudge($resource_id, $id);
-        }
-        else if ($entity === self::ENTITY_DASHBOARD) {
-            $this->dashboard_clients->attach($conn);
-            $this->openDashboard($resource_id, $id);
+        if (!empty($competition)) {
+            if ($entity === self::ENTITY_JUDGE) {
+                if (!isset($this->judge_clients[$competition])) {
+                    $this->judge_clients[$competition] = new SplObjectStorage;
+                }
+                $this->judge_clients[$competition]->attach($conn);
+                $this->openJudge($resource_id, $competition, $id);
+            }
+            else if ($entity === self::ENTITY_DASHBOARD) {
+                if (!isset($this->dashboard_clients[$competition])) {
+                    $this->dashboard_clients[$competition] = new SplObjectStorage;
+                }
+                $this->dashboard_clients[$competition]->attach($conn);
+                $this->openDashboard($resource_id, $competition, $id);
+            }
         }
     }
 
@@ -147,17 +193,20 @@ class TabulationServer implements MessageComponentInterface
         try { $arr_msg = json_decode($msg, true); } catch (Exception $e) {}
         if (sizeof($arr_msg) > 0) {
             // get entity, id, action, and payload
-            $entity  = $arr_msg['entity']  ?? '';
-            $id      = $arr_msg['id']      ?? 0;
-            $action  = $arr_msg['action']  ?? '';
-            $payload = $arr_msg['payload'] ?? [];
+            $competition  = $arr_msg['competition'] ?? '';
+            $entity       = $arr_msg['entity']      ?? '';
+            $id           = $arr_msg['id']          ?? 0;
+            $action       = $arr_msg['action']      ?? '';
+            $payload      = $arr_msg['payload']     ?? [];
 
             // route message
-            if ($entity === self::ENTITY_JUDGE) {
-                $this->messageJudge($resource_id, $id, $action, $payload);
-            }
-            else if ($entity === self::ENTITY_DASHBOARD) {
-                $this->messageDashboard($resource_id, $id, $action, $payload);
+            if (!empty($competition)) {
+                if ($entity === self::ENTITY_JUDGE) {
+                    $this->messageJudge($resource_id, $competition, $id, $action, $payload);
+                }
+                else if ($entity === self::ENTITY_DASHBOARD) {
+                    $this->messageDashboard($resource_id, $competition, $id, $action, $payload);
+                }
             }
         }
     }
@@ -185,29 +234,68 @@ class TabulationServer implements MessageComponentInterface
         // resource id
         $resource_id = $conn->resourceId;
 
-        // detach client
+        // detach client (judge)
         $detached = false;
-        foreach ($this->judges as $judge_key => $resource_ids) {
-            if (in_array($resource_id, $resource_ids)) {
-                $this->judge_clients->detach($conn);
-                $this->closeJudge($resource_id, $this->getId($judge_key));
-                $detached = true;
-                break;
-            }
-        }
-        if (!$detached) {
-            foreach ($this->dashboards as $dashboard_key => $resource_ids) {
+        foreach ($this->judges as $competition => $judges) {
+            foreach ($judges as $judge_key => $resource_ids) {
                 if (in_array($resource_id, $resource_ids)) {
-                    $this->dashboard_clients->detach($conn);
-                    $this->closeDashboard($resource_id, $this->getId($dashboard_key));
+                    if (isset($this->judge_clients[$competition])) {
+                        $this->judge_clients[$competition]->detach($conn);
+                    }
+                    $this->closeJudge($resource_id, $competition, $this->getId($judge_key));
                     $detached = true;
                     break;
                 }
             }
+            if ($detached) {
+                break;
+            }
         }
+
+        // detach client (dashboard)
         if (!$detached) {
-            try { $this->judge_clients->detach($conn); $this->closeJudge($resource_id, 0); } catch (Exception $e) {}
-            try { $this->dashboard_clients->detach($conn); $this->closeDashboard($resource_id, 0); } catch (Exception $e) {}
+            foreach ($this->dashboards as $competition => $dashboards) {
+                foreach ($dashboards as $dashboard_key => $resource_ids) {
+                    if (in_array($resource_id, $resource_ids)) {
+                        if (isset($this->dashboard_clients[$competition])) {
+                            $this->dashboard_clients[$competition]->detach($conn);
+                        }
+                        $this->closeDashboard($resource_id, $competition, $this->getId($dashboard_key));
+                        $detached = true;
+                        break;
+                    }
+                }
+                if ($detached) {
+                    break;
+                }
+            }
+        }
+
+        // detach client (possible judge or dashboard)
+        if (!$detached) {
+            // detach possible judge
+            try {
+                foreach ($this->judge_clients as $competition => $clients) {
+                    if ($clients->contains($conn)) {
+                        $this->judge_clients[$competition]->detach($conn);
+                        $this->closeJudge($resource_id, $competition, 0);
+                        break;
+                    }
+                }
+            }
+            catch (Exception $e) {}
+
+            // detach possible dashboard
+            try {
+                foreach ($this->dashboard_clients as $competition => $clients) {
+                    if ($clients->contains($conn)) {
+                        $this->dashboard_clients[$competition]->detach($conn);
+                        $this->closeJudge($resource_id, $competition, 0);
+                        break;
+                    }
+                }
+            }
+            catch (Exception $e) {}
         }
     }
 }

@@ -7,23 +7,27 @@ trait OpenJudge
     /**
      * Open judge client.
      * @param int $resource_id
+     * @param string $competition
      * @param int $judge_id
      * @return void
      */
-    public function openJudge(int $resource_id, int $judge_id): void
+    public function openJudge(int $resource_id, string $competition, int $judge_id): void
     {
         $judge_key = $this->judgeKey($judge_id);
 
-        if (!isset($this->judges[$judge_key])) {
-            $this->judges[$judge_key] = [];
+        if (!isset($this->judges[$competition])) {
+            $this->judges[$competition] = [];
         }
-        if (!in_array($resource_id, $this->judges[$judge_key])) {
-            $this->judges[$judge_key][] = $resource_id;
+        if (!isset($this->judges[$competition][$judge_key])) {
+            $this->judges[$competition][$judge_key] = [];
+        }
+        if (!in_array($resource_id, $this->judges[$competition][$judge_key])) {
+            $this->judges[$competition][$judge_key][] = $resource_id;
         }
 
         // send data to dashboard
-        $this->sendDashboardAll();
+        $this->sendDashboardAll($competition);
 
-        echo ">> [OPEN] Judge [$judge_id: $resource_id]\n";
+        echo ">> $competition: [OPEN] Judge [$judge_id: $resource_id]\n";
     }
 }

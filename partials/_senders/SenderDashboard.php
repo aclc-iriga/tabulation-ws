@@ -6,81 +6,94 @@ trait SenderDashboard
 {
     /**
      * Send all data to dashboard clients.
+     * @param string $competition
      * @return void
      */
-    public function sendDashboardAll(): void
+    public function sendDashboardAll(string $competition): void
     {
-        $this->sendDashboardOnlineJudges();
-        $this->sendDashboardJudgeActiveEvents();
-        $this->sendDashboardJudgeActiveTeamColumns();
-        $this->sendDashboardJudgesRequestingHelp();
+        $this->sendDashboardOnlineJudges($competition);
+        $this->sendDashboardJudgeActiveEvents($competition);
+        $this->sendDashboardJudgeActiveTeamColumns($competition);
+        $this->sendDashboardJudgesRequestingHelp($competition);
     }
 
 
     /**
      * Send online judges to dashboard clients.
+     * @param string $competition
      * @return void
      */
-    public function sendDashboardOnlineJudges(): void
+    public function sendDashboardOnlineJudges(string $competition): void
     {
         $message = json_encode([
             'subject' => '__online_judges__',
-            'body'    => $this->getOnlineJudges()
+            'body'    => $this->getOnlineJudges($competition)
         ]);
 
-        foreach ($this->dashboard_clients as $dashboard_client) {
-            $dashboard_client->send($message);
+        if (isset($this->dashboard_clients[$competition])) {
+            foreach ($this->dashboard_clients[$competition] as $dashboard_client) {
+                $dashboard_client->send($message);
+            }
         }
     }
 
 
     /**
      * Send judge active event to dashboard clients.
+     * @param string $competition
      * @return void
      */
-    public function sendDashboardJudgeActiveEvents(): void
+    public function sendDashboardJudgeActiveEvents(string $competition): void
     {
         $message = json_encode([
             'subject' => '__judges_active_event__',
-            'body'    => $this->getActiveEventOfJudges()
+            'body'    => $this->getActiveEventOfJudges($competition)
         ]);
 
-        foreach ($this->dashboard_clients as $dashboard_client) {
-            $dashboard_client->send($message);
+        if (isset($this->dashboard_clients[$competition])) {
+            foreach ($this->dashboard_clients[$competition] as $dashboard_client) {
+                $dashboard_client->send($message);
+            }
         }
     }
 
 
     /**
      * Send judge active team and column to dashboard clients.
+     * @param string $competition
      * @return void
      */
-    public function sendDashboardJudgeActiveTeamColumns(): void
+    public function sendDashboardJudgeActiveTeamColumns(string $competition): void
     {
         $message = json_encode([
             'subject' => '__judges_active_team_column__',
-            'body'    => $this->getActiveTeamColumnOfJudges()
+            'body'    => $this->getActiveTeamColumnOfJudges($competition)
         ]);
 
-        foreach ($this->dashboard_clients as $dashboard_client) {
-            $dashboard_client->send($message);
+        if (isset($this->dashboard_clients[$competition])) {
+            foreach ($this->dashboard_clients[$competition] as $dashboard_client) {
+                $dashboard_client->send($message);
+            }
         }
     }
 
 
     /**
      * Send judges requesting for help.
+     * @param string $competition
      * @return void
      */
-    public function sendDashboardJudgesRequestingHelp(): void
+    public function sendDashboardJudgesRequestingHelp(string $competition): void
     {
         $message = json_encode([
             'subject' => '__judges_requesting_help__',
-            'body'    => $this->judges_requesting_help
+            'body'    => $this->judges_requesting_help[$competition] ?? []
         ]);
 
-        foreach ($this->dashboard_clients as $dashboard_client) {
-            $dashboard_client->send($message);
+        if (isset($this->dashboard_clients[$competition])) {
+            foreach ($this->dashboard_clients[$competition] as $dashboard_client) {
+                $dashboard_client->send($message);
+            }
         }
     }
 }
