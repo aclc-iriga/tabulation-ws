@@ -97,4 +97,25 @@ trait SenderJudge
             }
         }
     }
+
+
+    /**
+     * Send active event to all judge clients.
+     * @param string $competition
+     * @param string $event_slug
+     * @return void
+     */
+    public function sendJudgeAllActiveEvent(string $competition, string $event_slug): void
+    {
+        if (isset($this->judge_clients[$competition])) {
+            $message = json_encode([
+                'subject' => '__all_active_event__',
+                'body'    => $event_slug
+            ]);
+
+            foreach ($this->judge_clients[$competition] as $judge_client) {
+                $judge_client->send($message);
+            }
+        }
+    }
 }

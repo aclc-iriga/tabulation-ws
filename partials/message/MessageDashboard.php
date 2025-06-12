@@ -32,5 +32,10 @@ trait MessageDashboard
         else if ($action === '__refresh_judge_event__') {
             $this->sendJudgeEventRefresh($competition, ($payload['judge_id'] ?? 0), ($payload['event_slug'] ?? ''));
         }
+
+        // switch all judges' active event (portion)
+        else if ($action === '__switch_all_judge_event__') {
+            $this->sendJudgeAllActiveEvent($competition, ($payload['event_slug'] ?? ''));
+        }
     }
 }
