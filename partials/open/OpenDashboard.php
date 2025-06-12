@@ -25,7 +25,6 @@ trait OpenDashboard
             $this->dashboards[$competition][$dashboard_key][] = $resource_id;
         }
 
-        // send data to dashboard
         $this->sendDashboardAll($competition);
 
         echo ">> $competition: [OPEN] Dashboard [$dashboard_id: $resource_id]\n";
