@@ -22,5 +22,15 @@ trait MessageDashboard
             $this->sendJudgeHelpStatus($competition, ($payload['judge_id'] ?? 0));
             $this->sendDashboardJudgesRequestingHelp($competition);
         }
+
+        // switch judge active event (portion)
+        else if ($action === '__switch_judge_event__') {
+            $this->sendJudgeActiveEvent($competition, ($payload['judge_id'] ?? 0), ($payload['event_slug'] ?? ''));
+        }
+
+        // refresh judge active event (portion)
+        else if ($action === '__refresh_judge_event__') {
+            $this->sendJudgeEventRefresh($competition, ($payload['judge_id'] ?? 0), ($payload['event_slug'] ?? ''));
+        }
     }
 }

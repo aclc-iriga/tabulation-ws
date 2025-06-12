@@ -41,4 +41,60 @@ trait SenderJudge
             }
         }
     }
+
+
+    /**
+     * Send active event of judge to its judge clients.
+     * @param string $competition
+     * @param int $judge_id
+     * @param string $event_slug
+     * @return void
+     */
+    public function sendJudgeActiveEvent(string $competition, int $judge_id, string $event_slug): void
+    {
+        if (isset($this->judge_clients[$competition]) && isset($this->judges[$competition])) {
+            $judge_key = $this->judgeKey($judge_id);
+
+            if (isset($this->judges[$competition][$judge_key])) {
+                $message = json_encode([
+                    'subject' => '__active_event__',
+                    'body'    => $event_slug
+                ]);
+
+                foreach ($this->judge_clients[$competition] as $judge_client) {
+                    if (in_array($judge_client->resourceId, $this->judges[$competition][$judge_key])) {
+                        $judge_client->send($message);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Send judge event to be refreshed to its judge clients.
+     * @param string $competition
+     * @param int $judge_id
+     * @param string $event_slug
+     * @return void
+     */
+    public function sendJudgeEventRefresh(string $competition, int $judge_id, string $event_slug): void
+    {
+        if (isset($this->judge_clients[$competition]) && isset($this->judges[$competition])) {
+            $judge_key = $this->judgeKey($judge_id);
+
+            if (isset($this->judges[$competition][$judge_key])) {
+                $message = json_encode([
+                    'subject' => '__refresh_event__',
+                    'body'    => $event_slug
+                ]);
+
+                foreach ($this->judge_clients[$competition] as $judge_client) {
+                    if (in_array($judge_client->resourceId, $this->judges[$competition][$judge_key])) {
+                        $judge_client->send($message);
+                    }
+                }
+            }
+        }
+    }
 }
