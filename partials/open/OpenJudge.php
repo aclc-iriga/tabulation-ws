@@ -25,8 +25,8 @@ trait OpenJudge
             $this->judges[$competition][$judge_key][] = $resource_id;
         }
 
-        // send data to dashboard
         $this->sendDashboardAll($competition);
+        $this->sendJudgeAll($competition, $judge_id);
 
         echo ">> $competition: [OPEN] Judge [$judge_id: $resource_id]\n";
     }
