@@ -106,7 +106,7 @@ trait SenderJudge
      * @param array $judge_keys
      * @return void
      */
-    public function sendJudgeAllActiveEvent(string $competition, string $event_slug, array $judge_keys): void
+    public function sendJudgeAllActiveEvent(string $competition, string $event_slug, array $judge_keys = []): void
     {
         if (isset($this->judge_clients[$competition]) && isset($this->judges[$competition])) {
             $message = json_encode([
@@ -122,7 +122,7 @@ trait SenderJudge
             }
 
             foreach ($this->judge_clients[$competition] as $judge_client) {
-                if (in_array($judge_client->resourceId, $resource_ids)) {
+                if (empty($judge_keys) || in_array($judge_client->resourceId, $resource_ids)) {
                     $judge_client->send($message);
                 }
             }
