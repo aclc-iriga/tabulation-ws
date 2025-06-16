@@ -15,6 +15,7 @@ trait SenderDashboard
         $this->sendDashboardJudgeActiveEvents($competition);
         $this->sendDashboardJudgeActiveTeamColumns($competition);
         $this->sendDashboardJudgesRequestingHelp($competition);
+        $this->sendDashboardJudgesOnScreensaver($competition);
     }
 
 
@@ -89,6 +90,26 @@ trait SenderDashboard
             $message = json_encode([
                 'subject' => '__judges_requesting_help__',
                 'body'    => $this->judges_requesting_help[$competition] ?? []
+            ]);
+
+            foreach ($this->dashboard_clients[$competition] as $dashboard_client) {
+                $dashboard_client->send($message);
+            }
+        }
+    }
+
+
+    /**
+     * Send judges on screensaver.
+     * @param string $competition
+     * @return void
+     */
+    public function sendDashboardJudgesOnScreensaver(string $competition): void
+    {
+        if (isset($this->dashboard_clients[$competition])) {
+            $message = json_encode([
+                'subject' => '__judges_on_screensaver__',
+                'body'    => $this->judges_on_screensaver[$competition] ?? []
             ]);
 
             foreach ($this->dashboard_clients[$competition] as $dashboard_client) {

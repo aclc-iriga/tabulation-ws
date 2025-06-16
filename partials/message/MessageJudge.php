@@ -17,15 +17,15 @@ trait MessageJudge
     {
         // judge active team and column
         if ($action === '__active_team_column__') {
-            $this->setJudgeActiveTeam($competition, $judge_id, $payload['team_id'] ?? 0);
-            $this->setJudgeActiveColumn($competition, $judge_id, $payload['column'] ?? 0);
+            $this->setJudgeActiveTeam($competition, $judge_id, ($payload['team_id'] ?? 0));
+            $this->setJudgeActiveColumn($competition, $judge_id, ($payload['column'] ?? 0));
 
             $this->sendDashboardJudgeActiveTeamColumns($competition);
         }
 
         // judge active event
         else if ($action === '__active_event__') {
-            $this->setJudgeActiveEvent($competition, $judge_id, $payload['event_id'] ?? 0);
+            $this->setJudgeActiveEvent($competition, $judge_id, ($payload['event_id'] ?? 0));
 
             $this->sendDashboardJudgeActiveEvents($competition);
             $this->sendDashboardJudgeActiveTeamColumns($competition);
@@ -33,9 +33,16 @@ trait MessageJudge
 
         // judge help request
         else if ($action === '__call_for_help__') {
-            $this->setJudgeHelpRequest($competition, $judge_id, $payload['status'] ?? false);
+            $this->setJudgeHelpRequest($competition, $judge_id, ($payload['status'] ?? false));
 
             $this->sendDashboardJudgesRequestingHelp($competition);
+        }
+
+        // judge screensaver
+        else if ($action === '__screensaver__') {
+            $this->setJudgeScreensaverStatus($competition, $judge_id, ($payload['status'] ?? false));
+
+            $this->sendDashboardJudgesOnScreensaver($competition);
         }
 
         // judge sign out

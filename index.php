@@ -128,6 +128,15 @@ class TabulationServer implements MessageComponentInterface
         ...
     ] */
 
+    protected array $judges_on_screensaver = []; /* [
+        'competition_1' => [
+            'judge_1',
+            'judge_2',
+            ...
+        ]
+        ...
+    ] */
+
 
     /**
      * Constructor

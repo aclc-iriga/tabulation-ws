@@ -24,10 +24,12 @@ trait CloseJudge
             }
         }
 
-        // reset judge event, candidate, and column
+        // reset judge event, candidate, column, and screensaver
         $this->setJudgeActiveEvent($competition, $judge_id, 0);
         $this->setJudgeActiveTeam($competition, $judge_id, 0);
         $this->setJudgeActiveColumn($competition, $judge_id, 0);
+        $this->setJudgeScreensaverStatus($competition, $judge_id, false);
+
 
         echo ">> $competition: [CLOSE] Dashboard [$judge_id: $resource_id]\n";
 

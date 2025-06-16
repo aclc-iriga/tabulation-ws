@@ -206,4 +206,67 @@ trait HelperJudge
             }
         }
     }
+
+
+    /**
+     * Get judge's screensaver status.
+     * @param string $competition
+     * @param int $judge_id
+     * @return bool
+     */
+    public function getJudgeScreensaverStatus(string $competition, int $judge_id): bool
+    {
+        $judge_key = $this->judgeKey($judge_id);
+
+        return isset($this->judges_on_screensaver[$competition]) && in_array($judge_key, $this->judges_on_screensaver[$competition]);
+    }
+
+
+    /**
+     * Set judge's screensaver status.
+     * @param string $competition
+     * @param int $judge_id
+     * @param bool $status
+     * @return void
+     */
+    public function setJudgeScreensaverStatus(string $competition, int $judge_id, bool $status = true): void
+    {
+        $judge_key = $this->judgeKey($judge_id);
+
+        if (!isset($this->judges_on_screensaver[$competition])) {
+            $this->judges_on_screensaver[$competition] = [];
+        }
+
+        if ($status) {
+            if (!in_array($judge_key, $this->judges_on_screensaver[$competition])) {
+                $this->judges_on_screensaver[$competition][] = $judge_key;
+            }
+        }
+        else {
+            if (in_array($judge_key, $this->judges_on_screensaver[$competition])) {
+                unset($this->judges_on_screensaver[$competition][array_search($judge_key, $this->judges_on_screensaver[$competition])]);
+                $this->judges_on_screensaver[$competition] = array_values($this->judges_on_screensaver[$competition]);
+            }
+        }
+    }
+
+
+    /**
+     * Set all judges' screensaver status.
+     * @param string $competition
+     * @param bool $status
+     * @param array $judge_keys
+     * @return void
+     */
+    public function setJudgeAllScreensaverStatus(string $competition, bool $status = true, array $judge_keys = []): void
+    {
+        if (isset($this->judges[$competition])) {
+            foreach ($this->judges[$competition] as $judge_key => $resource_ids) {
+                if (empty($judge_keys) || in_array($judge_key, $judge_keys)) {
+                    $judge_id = $this->getId($judge_key);
+                    $this->setJudgeScreensaverStatus($competition, $judge_id, $status);
+                }
+            }
+        }
+    }
 }

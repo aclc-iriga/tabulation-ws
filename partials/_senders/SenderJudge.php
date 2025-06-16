@@ -128,4 +128,50 @@ trait SenderJudge
             }
         }
     }
+
+
+    /**
+     * Send screensaver status of judge to its judge clients.
+     * @param string $competition
+     * @param int $judge_id
+     * @return void
+     */
+    public function sendJudgeScreensaverStatus(string $competition, int $judge_id): void
+    {
+        if (isset($this->judge_clients[$competition]) && isset($this->judges[$competition])) {
+            $judge_key = $this->judgeKey($judge_id);
+
+            if (isset($this->judges[$competition][$judge_key])) {
+                $message = json_encode([
+                    'subject' => '__screensaver_status__',
+                    'body'    => $this->getJudgeScreensaverStatus($competition, $judge_id)
+                ]);
+
+                foreach ($this->judge_clients[$competition] as $judge_client) {
+                    if (in_array($judge_client->resourceId, $this->judges[$competition][$judge_key])) {
+                        $judge_client->send($message);
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Send screensaver status all judges to their judge clients.
+     * @param string $competition
+     * @param array $judge_keys
+     * @return void
+     */
+    public function sendJudgeAllScreensaverStatus(string $competition, array $judge_keys = []): void
+    {
+        if (isset($this->judges[$competition])) {
+            foreach ($this->judges[$competition] as $judge_key => $resource_ids) {
+                if (empty($judge_keys) || in_array($judge_key, $judge_keys)) {
+                    $judge_id = $this->getId($judge_key);
+                    $this->sendJudgeScreensaverStatus($competition, $judge_id);
+                }
+            }
+        }
+    }
 }
