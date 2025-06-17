@@ -299,7 +299,7 @@ class TabulationServer implements MessageComponentInterface
                 foreach ($this->dashboard_clients as $competition => $clients) {
                     if ($clients->contains($conn)) {
                         $this->dashboard_clients[$competition]->detach($conn);
-                        $this->closeJudge($resource_id, $competition, 0);
+                        $this->closeDashboard($resource_id, $competition, 0);
                         break;
                     }
                 }
