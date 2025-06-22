@@ -42,6 +42,9 @@ follow the installation guide for:
 ---
 
 ### Integration with Tabulation Software
+Any Tabulation Software fork that includes a pre-committed `app/config/websocket.example.php` file is supported.
+If the file is present in the repository, it means the software is ready to integrate with this WebSocket server.
+
 To connect the Tabulation Software with the WebSocket server:
 1. Copy the example config file:
    
@@ -60,3 +63,4 @@ To connect the Tabulation Software with the WebSocket server:
    Example:
 
    `http://192.168.0.2/missiriga/app/dashboard`
+
