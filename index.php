@@ -143,7 +143,7 @@ class TabulationServer implements MessageComponentInterface
      */
     public function __construct()
     {
-        echo ">> [START]\n";
+        echo ">> [STARTED!]\n";
     }
 
 
@@ -314,13 +314,16 @@ use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 
+$port = in_array('--dev', $argv) ? 8079 : 8080;
+echo ">> Starting Server on port $port...\n";
+
 $server = IoServer::factory(
     new HttpServer(
         new WsServer(
             new TabulationServer()
         )
     ),
-    8080
+    $port
 );
 
 $server->run();
