@@ -29,8 +29,9 @@ Tabulation WebSocket Server
    ```
    This runs the WebSocket server on **port 8079**.
 
-   _**Note:** Without `--dev`, it defaults to port 8080. Update your WebSocket URL in the `app/config/websocket.php` of the tabulation software to use the correct port._
-
+   _**Notes:**_
+   - _Without `--dev`, it defaults to port 8080. Update your WebSocket URL in the `app/config/websocket.php` of the tabulation software to use the correct port._
+   - _You need to run this command again whenever there are updates to the codebase to ensure the latest changes take effect._
 ---
 
 ### Production Setup (Port: 8080)
