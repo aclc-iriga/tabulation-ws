@@ -167,7 +167,7 @@ class TabulationServer implements MessageComponentInterface
         $id          = $params['id']          ?? 0;
 
         // route open
-        if (!empty($competition)) {
+        if (!empty($competition) && $id !== 'undefined') {
             if ($entity === self::ENTITY_JUDGE) {
                 if (!isset($this->judge_clients[$competition])) {
                     $this->judge_clients[$competition] = new SplObjectStorage;
@@ -209,7 +209,7 @@ class TabulationServer implements MessageComponentInterface
             $payload      = $arr_msg['payload']     ?? [];
 
             // route message
-            if (!empty($competition)) {
+            if (!empty($competition) && $id !== 'undefined') {
                 if ($entity === self::ENTITY_JUDGE) {
                     $this->messageJudge($resource_id, $competition, $id, $action, $payload);
                 }
