@@ -13,6 +13,7 @@ you'll use [NSSM (Non-Sucking Service Manager)](https://nssm.cc/)
 to wrap your PHP script into a manageable service.
 Follow these steps to install it properly:
 1. Open Command Prompt as Administrator.
+   
    ![cmd-admin](screenshots/01-cmd-admin.png)
 
 2. Navigate to the NSSM ([deploy/windows/nssm-2.24-101-win64](nssm-2.24-101-win64)) directory:
