@@ -79,3 +79,10 @@ You can use the following commands to control the service:
   ```
   sc query TabulationWS
   ```
+
+- **Remove the service:**
+  
+  To remove or uninstall the service, navigate to the NSSM ([deploy/windows/nssm-2.24-101-win64](nssm-2.24-101-win64)) directory again and enter:
+  ```
+  nssm remove TabulationWS confirm
+  ```
